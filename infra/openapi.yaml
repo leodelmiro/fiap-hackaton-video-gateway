@@ -1,0 +1,357 @@
+openapi: 3.0.1
+info:
+  title: Tech Challenge (Hackathon) - Video para Imagens
+  description: >-
+    A API expõe endpoints para o Tech challenge (Hackathon) de Recebimento e Transformação de Video em Imagens.
+  contact:
+    name: Leonardo Delmiro
+    url: https://github.com/leodelmiro
+    email: leodelmiroms@gmail.com
+  license:
+    name: MIT License
+    url: https://choosealicense.com/licenses/mit/
+  version: '1.0'
+servers:
+  - url: ${recebe-video_url}
+    description: Server URL para ambiente de Dev Recebimento de Video
+  - url: ${gerencia-envio_url}
+    description: Server URL para ambiente de Dev Gerenciamento de Video
+  - url: ${usuario_url}
+    description: Server URL para ambiente de Dev Usuário
+tags:
+  - name: Envios
+    description: Endpoints relacionados ao Produto
+  - name: Usuários
+    description: Endpoints relacionados ao Cliente
+paths:
+  /api/v1/envios:
+    get:
+      security:
+        - CognitoAuth: [ ]
+      tags:
+        - Envios
+      summary: Lista envio por Autor
+      description: Lista todos os envio de um autor
+      operationId: listarPorAutor
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Video recebido com sucesso
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Envio'
+      x-amazon-apigateway-integration:
+        uri: http://${gerencia-envio_url}/api/v1/envios
+        passthroughBehavior: "when_no_match"
+        httpMethod: "GET"
+        timeoutInMillis: 14000
+        type: "http_proxy"
+    post:
+      tags:
+        - Envios
+      summary: Envia Video
+      description: Envia video para processamento
+      operationId: envia
+      parameters:
+        - name: nome
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: descricao
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+                - arquivo
+              type: object
+              properties:
+                arquivo:
+                  type: string
+                  format: binary
+      responses:
+        '202':
+          description: Video recebido com sucesso
+          content:
+            '*/*':
+              schema:
+                type: object
+      x-amazon-apigateway-integration:
+        uri: http://${recebe-video_url}/api/v1/videos
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        timeoutInMillis: 14000
+        type: "http_proxy"
+  /api/v1/envios/{id}:
+    get:
+      security:
+        - CognitoAuth: [ ]
+      tags:
+        - Envios
+      summary: Consulta Envio por Id
+      description: Consulta Id de envio
+      operationId: buscaPorId
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Video recebido com sucesso
+          content:
+            '*/*':
+              schema:
+                type: object
+      x-amazon-apigateway-integration:
+        uri: http://${gerencia-envio_url}/api/v1/envios/{id}
+        passthroughBehavior: "when_no_match"
+        httpMethod: "GET"
+        timeoutInMillis: 14000
+        type: "http_proxy"
+        requestParameters:
+          integration.request.path.id: "method.request.path.id"
+  /api/v1/envios/verifica:
+    get:
+      security:
+        - CognitoAuth: [ ]
+      tags:
+        - Envios
+      summary: Verifica nome envio existente
+      description: Verifica se existe Envio por Nome e Autor
+      operationId: buscaPorNomeAutor
+      parameters:
+        - name: nome
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Video recebido com sucesso
+          content:
+            '*/*':
+              schema:
+                type: object
+      x-amazon-apigateway-integration:
+        uri: http://${gerencia-envio_url}/api/v1/envios/verifica
+        passthroughBehavior: "when_no_match"
+        httpMethod: "GET"
+        timeoutInMillis: 14000
+        type: "http_proxy"
+  /api/v1/usuarios:
+    post:
+      tags:
+        - Usuários
+      summary: Cria Usuário
+      description: Criação de um novo usuário
+      operationId: cria
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CriaUsuarioRequest'
+        required: true
+      responses:
+        '201':
+          description: Usuário criado com sucesso
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CriaUsuarioResponse'
+      x-amazon-apigateway-integration:
+        uri: http://${usuario_url}/api/v1/usuarios
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        timeoutInMillis: 14000
+        type: "http_proxy"
+  /api/v1/usuarios/entrar:
+    post:
+      tags:
+        - Usuários
+      summary: Entrar com Usuário
+      description: Entrar com usuário e senha
+      operationId: entrar
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EntrarUsuarioRequest'
+        required: true
+      responses:
+        '200':
+          description: Usuário logado com sucesso
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+      x-amazon-apigateway-integration:
+        uri: http://${usuario_url}/api/v1/usuarios/entrar
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        timeoutInMillis: 14000
+        type: "http_proxy"
+  /api/v1/usuarios/{usuario}:
+    get:
+      security:
+        - CognitoAuth: [ ]
+      tags:
+        - Usuários
+      summary: Buscar Email Usuário
+      description: Busca email de um usuário
+      operationId: buscarEmail
+      parameters:
+        - name: usuario
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Usuário logado com sucesso
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BuscaEmailUsuarioResponse'
+      x-amazon-apigateway-integration:
+        uri: http://${usuario_url}/api/v1/usuarios/{usuario}
+        passthroughBehavior: "when_no_match"
+        httpMethod: "GET"
+        timeoutInMillis: 14000
+        type: "http_proxy"
+        requestParameters:
+          integration.request.path.usuario: "method.request.path.usuario"
+components:
+  schemas:
+    Envio:
+      required:
+        - autor
+        - descricao
+        - nome
+        - status
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        nome:
+          type: string
+        status:
+          type: string
+          enum:
+            - EM_PROCESSAMENTO
+            - PROCESSADO
+            - ERRO
+        descricao:
+          type: string
+        autor:
+          type: string
+        url:
+          type: string
+        criadoEm:
+          type: string
+          format: date-time
+    CriaUsuarioRequest:
+      required:
+        - email
+        - senha
+        - usuario
+      type: object
+      properties:
+        usuario:
+          type: string
+        senha:
+          type: string
+        email:
+          type: string
+    CriaUsuarioResponse:
+      required:
+        - email
+        - id
+        - senha
+        - usuario
+      type: object
+      properties:
+        id:
+          type: string
+        usuario:
+          type: string
+        senha:
+          type: string
+        email:
+          type: string
+    EntrarUsuarioRequest:
+      required:
+        - senha
+        - usuario
+      type: object
+      properties:
+        usuario:
+          type: string
+        senha:
+          type: string
+    TokenResponse:
+      required:
+        - accessToken
+        - expiresIn
+        - tokenType
+      type: object
+      properties:
+        accessToken:
+          type: string
+        tokenType:
+          type: string
+        expiresIn:
+          type: integer
+          format: int32
+    BuscaEmailUsuarioResponse:
+      required:
+        - email
+        - usuario
+      type: object
+      properties:
+        usuario:
+          type: string
+        email:
+          type: string
+  securitySchemes:
+    CognitoAuth:
+      type: apiKey
+      name: Authorization
+      in: header
+      x-amazon-apigateway-authtype: cognito_user_pools
+      x-amazon-apigateway-authorizer:
+        type: cognito_user_pools
+        providerARNs:
+          - arn:aws:cognito-idp:${region}:${accountId}:userpool/${userPoolId}
