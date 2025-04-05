@@ -49,7 +49,7 @@ paths:
         '200':
           description: Video recebido com sucesso
           content:
-            '*/*':
+            application/json:
               schema:
                 type: array
                 items:
@@ -97,7 +97,7 @@ paths:
         '202':
           description: Video recebido com sucesso
           content:
-            '*/*':
+            application/json:
               schema:
                 type: object
       x-amazon-apigateway-integration:
@@ -126,9 +126,9 @@ paths:
         '200':
           description: Video recebido com sucesso
           content:
-            '*/*':
+            application/json:
               schema:
-                type: object
+                $ref: '#/components/schemas/Envio'
       x-amazon-apigateway-integration:
         uri: http://${gerencia-envio_url}/api/v1/envios/{id}
         passthroughBehavior: "when_no_match"
@@ -139,8 +139,6 @@ paths:
           integration.request.path.id: "method.request.path.id"
   /api/v1/envios/verifica:
     get:
-      security:
-        - CognitoAuth: [ ]
       tags:
         - Envios
       summary: Verifica nome envio existente
@@ -161,9 +159,9 @@ paths:
         '200':
           description: Video recebido com sucesso
           content:
-            '*/*':
+            application/json:
               schema:
-                type: object
+                $ref: '#/components/schemas/Envio'
       x-amazon-apigateway-integration:
         uri: http://${gerencia-envio_url}/api/v1/envios/verifica
         passthroughBehavior: "when_no_match"
@@ -187,7 +185,7 @@ paths:
         '201':
           description: Usuário criado com sucesso
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/CriaUsuarioResponse'
       x-amazon-apigateway-integration:
@@ -213,7 +211,7 @@ paths:
         '200':
           description: Usuário logado com sucesso
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/TokenResponse'
       x-amazon-apigateway-integration:
@@ -241,7 +239,7 @@ paths:
         '200':
           description: Usuário logado com sucesso
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: '#/components/schemas/BuscaEmailUsuarioResponse'
       x-amazon-apigateway-integration:
