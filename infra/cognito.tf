@@ -41,6 +41,8 @@ resource "aws_cognito_user_pool_client" "userpool_client" {
   allowed_oauth_flows                  = ["code", "implicit"]
   allowed_oauth_scopes                 = ["openid", "email"]
   supported_identity_providers         = ["COGNITO"]
+
+  generate_secret = true
 }
 
 resource "aws_cognito_user" "test_user" {
