@@ -17,7 +17,7 @@ resource "aws_api_gateway_rest_api" "app" {
 }
 
 resource "aws_api_gateway_deployment" "app" {
-  depends_on = [aws_api_gateway_rest_api.app, aws_cognito_user_pool_client.userpool_client]
+  depends_on  = [aws_api_gateway_rest_api.app, aws_cognito_user_pool_client.userpool_client]
   rest_api_id = aws_api_gateway_rest_api.app.id
   description = "${var.projectName} Deployment"
 
