@@ -61,6 +61,8 @@ paths:
         timeoutInMillis: 14000
         type: "http_proxy"
     post:
+      security:
+        - CognitoAuth: [ ]
       tags:
         - Envios
       summary: Envia Video
@@ -139,6 +141,8 @@ paths:
           integration.request.path.id: "method.request.path.id"
   /api/v1/envios/verifica:
     get:
+      security:
+        - CognitoAuth: [ ]
       tags:
         - Envios
       summary: Verifica nome envio existente
