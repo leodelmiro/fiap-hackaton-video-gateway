@@ -29,9 +29,8 @@ Este repositório é referente ao Gateway e o Cognito.
 ## Tecnologias Utilizadas
 
 - Terraform
-- AWS
-- Api Gateway
-- Cognito
+- Api Gateway AWS
+- AWS Cognito
 
 ## Estrutura do Projeto
 
