@@ -31,6 +31,7 @@ Este repositório é referente ao Gateway e o Cognito.
 - Terraform
 - AWS Api Gateway
 - AWS Cognito
+- OpenAPI
 
 ## Estrutura do Projeto
 
