@@ -1,5 +1,11 @@
 resource "aws_api_gateway_rest_api" "app" {
   name = "${var.projectName}-api"
+  binary_media_types = [
+    "multipart/form-data",
+    "application/octet-stream",
+    "video/mp4"
+  ]
+
   body = templatefile("${path.module}/openapi.yaml", {
     userPoolId         = aws_cognito_user_pool.userpool.id
     region             = var.regionDefault
